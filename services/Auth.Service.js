@@ -12,29 +12,41 @@ export default class AuthService {
   }
 
   static async register(username, password) {
-    const hash = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, password: hash });
-    return this.serializeUser(user);
+    try {
+      const hash = await bcrypt.hash(password, 10);
+      const user = await User.create({ username, password: hash });
+      return this.serializeUser(user);
+    } catch (error) {
+      throw error;
+    }
   }
 
   static async login(username, password) {
-    const user = await User.findOne({ username });
-    if (!user) throw new Error("User not found");
+    try {
+      const user = await User.findOne({ username });
+      if (!user) throw new Error("User not found");
 
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) throw new Error("Invalid password");
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) throw new Error("Invalid password");
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    return {
-      token,
-      user: this.serializeUser(user),
-    };
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      return {
+        token,
+        user: this.serializeUser(user),
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   static async profile(userId) {
-    const user = await User.findById(userId);
-    if (!user) throw new Error("User not found");
+    try {
+      const user = await User.findById(userId);
+      if (!user) throw new Error("User not found");
 
-    return this.serializeUser(user);
+      return this.serializeUser(user);
+    } catch (error) {
+      throw error;
+    }
   }
 }

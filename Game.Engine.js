@@ -40,54 +40,62 @@ export default class GameEngine {
   }
 
   static async startRound(io) {
-    const serverSeed = Math.random().toString(36);
-    const { crashPoint, hash } = CrashService.generate(serverSeed);
+    try {
+      const serverSeed = Math.random().toString(36);
+      const { crashPoint, hash } = CrashService.generate(serverSeed);
 
-    this.crashPoint = crashPoint;
+      this.crashPoint = crashPoint;
 
-    this.currentRound = await Round.create({
-      crashPoint,
-      serverSeed,
-      hash,
-    });
+      this.currentRound = await Round.create({
+        crashPoint,
+        serverSeed,
+        hash,
+      });
 
-    this.multiplier = 1;
-    this.gameState = "FLYING";
+      this.multiplier = 1;
+      this.gameState = "FLYING";
 
-    io.emit("round_started", {
-      ...this.getPublicState(),
-      hash,
-    });
+      io.emit("round_started", {
+        ...this.getPublicState(),
+        hash,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   static async crashRound(io) {
-    this.gameState = "CRASHED";
-    this.multiplier = this.crashPoint;
-    this.history = [
-      {
-        roundId: this.currentRound._id,
-        value: this.crashPoint,
-      },
-      ...this.history,
-    ].slice(0, 12);
+    try {
+      this.gameState = "CRASHED";
+      this.multiplier = this.crashPoint;
+      this.history = [
+        {
+          roundId: this.currentRound._id,
+          value: this.crashPoint,
+        },
+        ...this.history,
+      ].slice(0, 12);
 
-    io.emit("round_crashed", {
-      ...this.getPublicState(),
-      crashAt: this.crashPoint,
-    });
-
-    const lostBets = await GameService.resolveBets(this.currentRound._id);
-
-    for (const bet of lostBets) {
-      io.to(String(bet.userId)).emit("bet_lost", {
-        amount: bet.amount,
-        roundId: bet.roundId,
+      io.emit("round_crashed", {
+        ...this.getPublicState(),
+        crashAt: this.crashPoint,
       });
-    }
 
-    setTimeout(() => {
-      this.setWaiting(io, 5000);
-    }, 1800);
+      const lostBets = await GameService.resolveBets(this.currentRound._id);
+
+      for (const bet of lostBets) {
+        io.to(String(bet.userId)).emit("bet_lost", {
+          amount: bet.amount,
+          roundId: bet.roundId,
+        });
+      }
+
+      setTimeout(() => {
+        this.setWaiting(io, 5000);
+      }, 1800);
+    } catch (error) {
+      throw error;
+    }
   }
 
   static start(io) {

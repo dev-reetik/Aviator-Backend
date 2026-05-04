@@ -19,7 +19,9 @@ Aviator Backend is a complete gaming server for the Aviator crash game, featurin
 - **Database**: MongoDB (Mongoose 9.6.1)
 - **Real-time**: Socket.IO 4.8.3
 - **Authentication**: JWT (jsonwebtoken 9.0.3)
-- **Security**: bcryptjs 3.0.3
+- **Security**: bcryptjs 3.0.3, Helmet 7.1.0
+- **Logging**: Morgan 1.10.0
+- **CORS**: cors 2.8.6
 - **Development**: nodemon
 
 ## 📦 Prerequisites

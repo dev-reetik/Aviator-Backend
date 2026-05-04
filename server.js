@@ -5,6 +5,8 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+import morgan from "morgan";
+import helmet from "helmet";
 
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/Auth.Routes.js";
@@ -14,6 +16,9 @@ import GameEngine from "./Game.Engine.js";
 
 const app = express();
 
+
+app.use(helmet());
+app.use(morgan("combined"));
 app.use(cors());
 app.use(express.json());
 
